@@ -1,11 +1,12 @@
 import React from "react";
-import { Table, Button } from "antd";
+import { Table, Button, Row, Col } from "antd";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import * as moment from "moment";
 import showDeleteConfirm from '../../components/delete-modal';
 import { connect } from 'react-redux';
 import constants from '../../constants';
+import ProjectCard from './card';
 
 
 var momentDurationFormatSetup = require("moment-duration-format");
@@ -45,7 +46,7 @@ class Projects extends React.Component {
       render: (text, record) => {
         const { token } = this.props;
         return (<Button onClick={() => showDeleteConfirm({
-          url: `${constants.HOST}/api/project/${record.id}`,
+          url: `${constants.HOST}/api/project/${record.id}/`,
           token: token,
           entity: 'Project',
           dataKey: `${record.name}`
@@ -79,7 +80,15 @@ class Projects extends React.Component {
     const { projects } = this.state;
     return (
       <div>
-        <Table columns={this.columns} bordered dataSource={projects}></Table>
+        {/* <Table columns={this.columns} bordered dataSource={projects}></Table> */}
+        <Row gutter={[16, 16]}>
+          {
+            projects.map(proj =>
+              <Col className="gutter-row" span={8} >
+                <ProjectCard project={proj} token={this.props.token} />
+              </Col>)
+          }
+        </Row>
       </div>
     );
   }

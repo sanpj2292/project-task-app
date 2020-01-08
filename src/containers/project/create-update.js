@@ -6,7 +6,8 @@ import {
   Icon,
   Input,
   Tooltip,
-  Row, Col
+  Row, Col,
+  Upload
 } from "antd";
 import moment from "moment";
 import axios from "axios";
@@ -47,6 +48,7 @@ class CreateProjectForm extends React.Component {
     form_vals: {},
     method: this.props.method,
     prj_id: this.props.match.params.projectID,
+    selectedFiles: [],
   };
 
   VALID_LENGTH = {
@@ -66,18 +68,24 @@ class CreateProjectForm extends React.Component {
     this.props.form.validateFields((err, vals) => {
       if (!err) {
         axios.defaults.headers = {
-          Authorization: `Token ${this.props.token}`
+          Authorization: `Token ${this.props.token}`,
         };
         if (this.state.method === 'post') {
           let diff = vals.duration[1].diff(vals.duration[0]);
           // Create Project
+
+          console.log('Avatar: ', vals.avatar);
+          let form_data = new FormData();
+          // add one or more of your files in FormData
+          // again, the original file is located at the `originFileObj` key
+          form_data.append("avatar", this.state.selectedFiles[0].originFileObj);
+          form_data.append('name', vals.prj_name);
+          form_data.append('description', vals.prj_description);
+          form_data.append('duration', diff);
           axios
-            .post(constants.HOST + "/api/project/", {
-              name: vals.prj_name,
-              description: vals.prj_description,
-              duration: diff
-            })
+            .post(constants.HOST + "/api/project/", form_data)
             .then(res => {
+              console.log(res.data);
               this.props.history.push("/");
             })
             .catch(err => {
@@ -91,7 +99,8 @@ class CreateProjectForm extends React.Component {
           axios.put(`${constants.HOST}/api/project/${prj_id}/`, {
             name: mod_vals.prj_name,
             description: mod_vals.prj_description,
-            duration: mod_vals.duration
+            duration: mod_vals.duration,
+            avatar: mod_vals.avatar
           }).then(res => {
             console.log('Successful Updation: ', res.data);
             this.props.history.push('/')
@@ -123,7 +132,8 @@ class CreateProjectForm extends React.Component {
           setFieldsValue({
             prj_name: project.name,
             prj_description: project.description,
-            duration: project.duration
+            duration: project.duration,
+            avatar: project.avatar,
           });
         })
         .catch(err => console.error(err));
@@ -140,27 +150,44 @@ class CreateProjectForm extends React.Component {
     this.setState(new_state);
   }
 
+  handleUpload = ({ fileList }) => {
+    //---------------^^^^^----------------
+    // this is equivalent to your "const img = event.target.files[0]"
+    // here, antd is giving you an array of files, just like event.target.files
+    // but the structure is a bit different that the original file
+    // the original file is located at the `originFileObj` key of each of this files
+    // so `event.target.files[0]` is actually fileList[0].originFileObj
+    console.log('fileList', fileList);
+
+    // you store them in state, so that you can make a http req with them later
+    let new_state = updateObject(this.state,
+      { 'selectedFiles': fileList });
+    this.setState(new_state);
+    // this.setState({ fileList });
+  };
+
   render() {
     const { isEdit, isDisabled, method } = this.state;
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const { token } = this.props;
-    console.log('Project Delete Token: ', token);
+    console.log('Project Delete Token: ', method);
     return (
       <Form onSubmit={this.handleSubmit} className="login-form">
         <Form.Item>
           <Row type='flex' justify='end'>
-            <Col style={{ marginRight: '4px', marginLeft: '4px' }}>
-              <Button
-                onClick={() => showDeleteConfirm({
-                  url: `${constants.HOST}/api/project/${this.state.prj_id}`,
-                  token: token,
-                  entity: 'Project',
-                  dataKey: `${getFieldValue('prj_name')}`
-                })}
-                type="danger" >
-                Delete
+            {method === 'post' ? null :
+              (<Col style={{ marginRight: '4px', marginLeft: '4px' }}>
+                <Button
+                  onClick={() => showDeleteConfirm({
+                    url: `${constants.HOST}/api/project/${this.state.prj_id}`,
+                    token: token,
+                    entity: 'Project',
+                    dataKey: `${getFieldValue('prj_name')}`
+                  })}
+                  type="delete" >
+                  Delete
               </Button>
-            </Col>
+              </Col>)}
             <Col style={{ marginRight: '4px', marginLeft: '4px' }}>
               {method === 'post' ? null : (
                 <Tooltip placement="bottom" title={isDisabled ? 'Edit' : 'Cancel'}>
@@ -221,10 +248,25 @@ class CreateProjectForm extends React.Component {
           )}
         </Form.Item>
         <Form.Item>
+          <Row type='flex' justify='start'>
+            <Col span={4}>
+              {getFieldDecorator('avatar', { rules: [{ required: false }] })
+                (<Upload onChange={this.handleUpload}
+                  beforeUpload={() => false}
+                  listType='picture'>
+                  <Button icon='upload'>
+                    Upload
+                  </Button>
+                </Upload>)}
+            </Col>
+          </Row>
+        </Form.Item>
+        <Form.Item>
           {
             isEdit || isDisabled ? getFieldDecorator('duration', { rules: [{ required: false }] })(< Input onChange={this.handleChange} disabled={isDisabled} />) : getFieldDecorator("duration", rangeConfig)(Duration)
           }
         </Form.Item>
+
 
       </Form>
     );

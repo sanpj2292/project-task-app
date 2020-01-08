@@ -16,9 +16,13 @@ class LoginForm extends React.Component {
         if (!this.props.error) {
           this.props.history.push('/');
         }
+      } else {
+        window.location.reload();
       }
     });
   };
+
+
 
   render() {
     let errorMsg = null;

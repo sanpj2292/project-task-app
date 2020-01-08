@@ -6,7 +6,7 @@ from djreact import settings
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProjectModel
-        fields = ('id', 'name', 'description', 'duration', 'created_by', 'task_set')
+        fields = ('id', 'name', 'description', 'duration', 'created_by', 'task_set', 'avatar')
         read_only_fields = ('created_by', 'task_set')
 
     def create(self, validated_data):
