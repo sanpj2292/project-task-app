@@ -59,7 +59,8 @@ class CreateProjectForm extends React.Component {
   handleChange = e => {
     e.preventDefault();
     let { form_vals } = this.state;
-    let mod_form_vals = updateObject({ form_vals }, { form_vals: { [e.target.id]: e.target.value } })
+    let mod_form_vals = updateObject({ form_vals }, { form_vals: { [e.target.id]: e.target.value } });
+    console.log('Modified Vlas: ', mod_form_vals)
     this.setState(updateObject(this.state, mod_form_vals));
   };
 
@@ -70,18 +71,20 @@ class CreateProjectForm extends React.Component {
         axios.defaults.headers = {
           Authorization: `Token ${this.props.token}`,
         };
+        let form_data = new FormData();
+        // add one or more of your files in FormData
+        // again, the original file is located at the `originFileObj` key
+        form_data.append("avatar", this.state.selectedFiles[0].originFileObj);
+
         if (this.state.method === 'post') {
           let diff = vals.duration[1].diff(vals.duration[0]);
           // Create Project
-
-          console.log('Avatar: ', vals.avatar);
           let form_data = new FormData();
           // add one or more of your files in FormData
           // again, the original file is located at the `originFileObj` key
-          form_data.append("avatar", this.state.selectedFiles[0].originFileObj);
+          form_data.append('duration', diff);
           form_data.append('name', vals.prj_name);
           form_data.append('description', vals.prj_description);
-          form_data.append('duration', diff);
           axios
             .post(constants.HOST + "/api/project/", form_data)
             .then(res => {
@@ -96,12 +99,11 @@ class CreateProjectForm extends React.Component {
           let prj_id = this.state.prj_id;
           let { form_vals } = this.state;
           let mod_vals = updateObject(vals, form_vals);
-          axios.put(`${constants.HOST}/api/project/${prj_id}/`, {
-            name: mod_vals.prj_name,
-            description: mod_vals.prj_description,
-            duration: mod_vals.duration,
-            avatar: mod_vals.avatar
-          }).then(res => {
+          form_data.append('name', mod_vals.prj_name);
+          form_data.append('description', mod_vals.prj_description);
+          form_data.append('duration', mod_vals.duration);
+          console.log('Form Data: ', form_data);
+          axios.put(`${constants.HOST}/api/project/${prj_id}/`, form_data).then(res => {
             console.log('Successful Updation: ', res.data);
             this.props.history.push('/')
           }).catch(err => console.error(err));
@@ -150,21 +152,40 @@ class CreateProjectForm extends React.Component {
     this.setState(new_state);
   }
 
-  handleUpload = ({ fileList }) => {
+  handleUpload = ({ file, fileList }) => {
     //---------------^^^^^----------------
     // this is equivalent to your "const img = event.target.files[0]"
     // here, antd is giving you an array of files, just like event.target.files
     // but the structure is a bit different that the original file
     // the original file is located at the `originFileObj` key of each of this files
     // so `event.target.files[0]` is actually fileList[0].originFileObj
-    console.log('fileList', fileList);
 
     // you store them in state, so that you can make a http req with them later
-    let new_state = updateObject(this.state,
-      { 'selectedFiles': fileList });
-    this.setState(new_state);
-    // this.setState({ fileList });
+    var spArr = file.name.split('.');
+    let ext = spArr[spArr.length - 1];
+    console.log('Extendsion: ', ext);
+    if (ext && ext.toLowerCase() === 'jpg') {
+      console.log('Handle Upload success');
+      let new_state = updateObject(this.state,
+        { 'selectedFiles': fileList });
+      this.setState(new_state);
+    }
   };
+
+
+  fileUploadValidator = (rule, value, callback) => {
+    console.log('FileValidator: ', value);
+    const { file } = value;
+    var spArr = file.name.split('.');
+    let ext = spArr[spArr.length - 1]
+    if (!ext) {
+      callback('Don\'t leave it empty');
+    } else if (ext && ext.toLowerCase() !== 'jpg') {
+      callback('Only .jpg images are supported, please upload .jpg images')
+    } else {
+      callback();
+    }
+  }
 
   render() {
     const { isEdit, isDisabled, method } = this.state;
@@ -250,9 +271,16 @@ class CreateProjectForm extends React.Component {
         <Form.Item>
           <Row type='flex' justify='start'>
             <Col span={4}>
-              {getFieldDecorator('avatar', { rules: [{ required: false }] })
-                (<Upload onChange={this.handleUpload}
+              {getFieldDecorator('avatar', {
+                rules: [
+                  { required: false }
+                  , { validator: this.fileUploadValidator }
+                ]
+              })
+                (<Upload
+                  onChange={this.handleUpload}
                   beforeUpload={() => false}
+                  disabled={isDisabled}
                   listType='picture'>
                   <Button icon='upload'>
                     Upload
