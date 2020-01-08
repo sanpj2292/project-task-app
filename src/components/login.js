@@ -68,7 +68,7 @@ class LoginForm extends React.Component {
                   </Col>
                   <Col xs={{ span: 6, offset: 6 }}>
                     <Button type="primary" htmlType="submit" className="login-form-button">
-                      <a href="/register/">Register now!</a>
+                      <a href="/app/register/">Register now!</a>
                     </Button>
                   </Col>
                 </Row>

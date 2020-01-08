@@ -1,7 +1,7 @@
-import React, {Component} from "react";
-import {Form, Row, Col, Input, Button} from 'antd';
+import React, { Component } from "react";
+import { Form, Row, Col, Input, Button } from 'antd';
 import * as actions from "../store/actions/auth";
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 
 class RegisterForm extends Component {
 
@@ -12,7 +12,7 @@ class RegisterForm extends Component {
     compareToFirstPassword = (rule, value, callback) => {
         const { form } = this.props;
         if (value && value !== form.getFieldValue('password_1')) {
-          callback('Two passwords that you enter is inconsistent!');
+            callback('Two passwords that you enter is inconsistent!');
         } else {
             callback();
         }
@@ -26,20 +26,23 @@ class RegisterForm extends Component {
     validateToNextPassword = (rule, value, callback) => {
         const { form } = this.props;
         if (value && this.state.confirmDirty) {
-          form.validateFields(['password_2'], { force: true });
+            if (value.length < 8) {
+                callback('Password length must have atlease 8 characters');
+            }
+            form.validateFields(['password_2'], { force: true });
         }
         callback();
     };
 
     handleSubmit = (event) => {
         event.preventDefault();
-        this.props.form.validateFields((err, vals) => {
-           if(!err){
-               console.log('Received Values: ', vals);
-               this.props.onAuth(vals.username, vals.email, vals.password_1, vals.password_2);
-           }
+        this.props.form.validateFieldsAndScroll((err, vals) => {
+            if (!err) {
+                console.log('Received Values: ', vals);
+                this.props.onAuth(vals.username, vals.email, vals.password_1, vals.password_2);
+                // this.props.history.push('/');
+            }
         });
-        this.props.history.push('/');
     };
 
     render() {
@@ -49,16 +52,16 @@ class RegisterForm extends Component {
                 <Col span={10}>
                     <Form onSubmit={this.handleSubmit}>
                         <Form.Item label='Username'>
-                        {getFieldDecorator('username',
-                            {
-                                rules: [
-                                    {
-                                        required: true,
-                                        message: 'Please input your username!'
-                                    }
-                                ],
-                            })(<Input placeholder="Enter your username" />)
-                        }
+                            {getFieldDecorator('username',
+                                {
+                                    rules: [
+                                        {
+                                            required: true,
+                                            message: 'Please input your username!'
+                                        }
+                                    ],
+                                })(<Input placeholder="Enter your username" />)
+                            }
                         </Form.Item>
                         <Form.Item label='Password' hasFeedback>
                             {getFieldDecorator('password_1',
@@ -88,14 +91,18 @@ class RegisterForm extends Component {
                                         }
                                     ],
                                 })(<Input.Password
-                                onBlur={this.handleConfirmBlur}
-                                placeholder="Confirm Password" />)
+                                    onBlur={this.handleConfirmBlur}
+                                    placeholder="Confirm Password" />)
                             }
                         </Form.Item>
                         <Form.Item label='E-mail'>
-                            <Input type='email' name='email'
-                                   placeholder="Enter your Email"
-                            />
+                            {getFieldDecorator('email', {
+                                rules: [{ type: 'email' }, {
+                                    required: false
+                                }]
+                            })(<Input
+                                placeholder="Enter your Email"
+                            />)}
                         </Form.Item>
                         <Button type="primary" htmlType="submit" className="login-form-button">
                             Register
@@ -107,7 +114,7 @@ class RegisterForm extends Component {
     }
 }
 
-const Register = Form.create({name: 'RegisterForm'})(RegisterForm);
+const Register = Form.create({ name: 'RegisterForm' })(RegisterForm);
 
 
 const mapStateToProps = state => {
@@ -119,7 +126,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        onAuth: (username, email, password1,password2) => {
+        onAuth: (username, email, password1, password2) => {
             return dispatch(actions.authSignUp(username, email, password1, password2));
         }
     };

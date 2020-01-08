@@ -144,6 +144,7 @@ class CreateProjectForm extends React.Component {
     const { isEdit, isDisabled, method } = this.state;
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const { token } = this.props;
+    console.log('Project Delete Token: ', token);
     return (
       <Form onSubmit={this.handleSubmit} className="login-form">
         <Form.Item>

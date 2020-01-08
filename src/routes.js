@@ -14,7 +14,7 @@ const BaseRouter = () => (
       <Redirect from="/" to="/project/" />
     </Route>
     <Route exact path="/login/" component={Login} />
-    <Route exact path="/register/" component={Register} />
+    <Route exact path="/app/register/" component={Register} />
     <Route exact path="/project/" component={Home} />
     <Switch>
       <Route exact path="/project/create" render={(props) => <CreateProject method='post' {...props} />} />

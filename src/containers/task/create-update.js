@@ -96,7 +96,7 @@ class TaskCreateUpdateForm extends Component {
                             end_date: vals.date_range[1].format('YYYY/MM/DD'),
                             project_id: proj_id,
                         }).then(res => {
-                            this.props.history.push(`/api/project/${proj_id}/`);
+                            this.props.history.push(`/project/${proj_id}/`);
                         }).catch(err => {
                             console.error(err);
                         });

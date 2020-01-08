@@ -42,14 +42,17 @@ class Projects extends React.Component {
     }, {
       title: 'Action(Delete)',
       dataIndex: 'id',
-      render: (text, record) => <Button onClick={() => showDeleteConfirm({
-        url: `${constants.HOST}/api/project/${record.id}`,
-        token: this.props.token,
-        entity: 'Project',
-        dataKey: `${record.name}`
-      })} type="danger" >
-        Delete
-      </Button >
+      render: (text, record) => {
+        const { token } = this.props;
+        return (<Button onClick={() => showDeleteConfirm({
+          url: `${constants.HOST}/api/project/${record.id}`,
+          token: token,
+          entity: 'Project',
+          dataKey: `${record.name}`
+        })} type="danger" >
+          Delete
+      </Button >)
+      }
     }
   ];
 
