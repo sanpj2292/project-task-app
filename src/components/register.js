@@ -38,9 +38,8 @@ class RegisterForm extends Component {
         event.preventDefault();
         this.props.form.validateFieldsAndScroll((err, vals) => {
             if (!err) {
-                console.log('Received Values: ', vals);
                 this.props.onAuth(vals.username, vals.email, vals.password_1, vals.password_2);
-                // this.props.history.push('/');
+                this.props.history.push('/login');
             }
         });
     };
