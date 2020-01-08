@@ -11,17 +11,17 @@ import TaskDetail from "./containers/task/detail";
 const BaseRouter = () => (
   <div>
     <Route exact path="/">
-      <Redirect from="/" to="/api/project/" />
+      <Redirect from="/" to="/project/" />
     </Route>
     <Route exact path="/login/" component={Login} />
     <Route exact path="/register/" component={Register} />
-    <Route exact path="/api/project/" component={Home} />
+    <Route exact path="/project/" component={Home} />
     <Switch>
-      <Route exact path="/api/project/create" render={(props) => <CreateProject method='post' {...props} />} />
-      <Route exact path="/api/project/:projectID" render={(props) => <ProjectDetails {...props} />} />
-      <Route exact path="/api/project/:projectID/task/create"
+      <Route exact path="/project/create" render={(props) => <CreateProject method='post' {...props} />} />
+      <Route exact path="/project/:projectID" render={(props) => <ProjectDetails {...props} />} />
+      <Route exact path="/project/:projectID/task/create"
         render={(props) => <TaskCreateUpdate method='post' {...props} />} />
-      <Route exact path="/api/project/:projectID/task/:taskID"
+      <Route exact path="/project/:projectID/task/:taskID"
         render={(props) => <TaskDetail {...props} />} />
     </Switch>
   </div>

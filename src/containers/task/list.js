@@ -20,7 +20,7 @@ class TaskList extends Component {
             dataIndex: "name",
             key: "name",
             render: (text, record) => (
-                <Link to={`/api/project/${this.props.match.params.projectID}/task/${record.id}`}>{text}</Link>)
+                <Link to={`/project/${this.props.match.params.projectID}/task/${record.id}`}>{text}</Link>)
         },
         {
             title: "Task Description",
@@ -83,7 +83,7 @@ class TaskList extends Component {
                     <Col span={4.5}>
                         <Tooltip placement="bottom" title="Create Task">
                             <Button icon="plus" type="primary">
-                                <Link style={{ color: "rgba(255,255,255)", marginLeft: '2px' }} to={`/api/project/${this.state.project_id}/task/create`}>Create</Link>
+                                <Link style={{ color: "rgba(255,255,255)", marginLeft: '2px' }} to={`/project/${this.state.project_id}/task/create`}>Create</Link>
                             </Button>
                         </Tooltip>
                     </Col>

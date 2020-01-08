@@ -59,15 +59,12 @@ class LoginForm extends React.Component {
                 valuePropName: 'checked',
                 initialValue: false,
               })(<Checkbox>Remember me</Checkbox>)}
-              <a className="login-form-forgot" href="#">
-                Forgot password
-              </a>
               <div>
                 <Row>
                   <Col xs={{ span: 6 }}>
                     <Button type="primary" htmlType="submit" className="login-form-button">
                       Log in
-                          </Button>
+                    </Button>
                   </Col>
                   <Col xs={{ span: 6, offset: 6 }}>
                     <Button type="primary" htmlType="submit" className="login-form-button">

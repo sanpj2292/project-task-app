@@ -1,7 +1,6 @@
 import React from 'react';
 import { Modal } from 'antd';
 import axios from "axios";
-import { Redirect } from 'react-router-dom';
 
 
 const { confirm } = Modal;
