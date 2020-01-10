@@ -4,6 +4,8 @@ from djreact import settings
 
 
 class ProjectSerializer(serializers.ModelSerializer):
+    partial = True  # To support for Partial Updates to DB
+
     class Meta:
         model = ProjectModel
         fields = ('id', 'name', 'description', 'duration', 'created_by', 'task_set', 'avatar')
@@ -27,7 +29,7 @@ class TasksSerializer(serializers.ModelSerializer):
         model = TaskModel
         fields = ('id', 'name', 'description', 'start_date',
                   'end_date', 'project_id', 'created_by')
-        read_only_fields = ('created_by', )
+        read_only_fields = ('created_by',)
 
     def create(self, validated_data):
         req = self.context['request']

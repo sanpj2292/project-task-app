@@ -16,7 +16,8 @@ class Project(models.Model):
     start_date = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(UserModel, on_delete=models.CASCADE)
     duration = models.DurationField()
-    avatar = models.ImageField(upload_to='project_avatars', blank=False, null=True)
+    avatar = models.ImageField(upload_to='project_avatars', blank=True, null=True,
+                               default='default.jpg')
 
     def __str__(self):
         return f'Project<{self.name}>'

@@ -80,7 +80,6 @@ class Projects extends React.Component {
     const { projects } = this.state;
     return (
       <div>
-        {/* <Table columns={this.columns} bordered dataSource={projects}></Table> */}
         <Row gutter={[16, 16]}>
           {
             projects.map(proj =>

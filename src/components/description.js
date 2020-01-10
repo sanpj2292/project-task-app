@@ -1,5 +1,5 @@
 import React from "react";
-import { Typography } from "antd";
+import { Typography, Button } from "antd";
 
 const { Paragraph } = Typography;
 
@@ -13,8 +13,8 @@ class Description extends React.Component {
         this.setState({
             expand: true,
             counter: !this.state.expand
-                ? this.state.counter + 0
-                : this.state.counter + 1
+                ? this.state.counter
+                : this.state.counter + 0.5
         });
     };
 
@@ -22,8 +22,8 @@ class Description extends React.Component {
         this.setState({
             expand: false,
             counter: !this.state.expand
-                ? this.state.counter + 0
-                : this.state.counter + 1
+                ? this.state.counter
+                : this.state.counter + 0.5
         });
     };
 
@@ -49,7 +49,7 @@ class Description extends React.Component {
         return (
             <div>
                 {this.renderParagraph()}
-                {this.state.expand && <a href='' onClick={this.typoClose}>Close</a>}
+                {this.state.expand &&  <Button type="link" onClick={this.typoClose}>Close</Button>}
             </div>
         );
     }

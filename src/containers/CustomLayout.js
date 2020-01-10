@@ -34,7 +34,6 @@ class CustomLayout extends React.Component {
             {this.props.children}
           </div>
         </Content>
-        <Footer style={{ textAlign: 'center' }}>Designed by P Sai Sankeerth Rao</Footer>
       </Layout>
     );
   }

@@ -7,7 +7,7 @@ import {
   Input,
   Tooltip,
   Row, Col,
-  Upload
+  Upload, TimePicker, message
 } from "antd";
 import moment from "moment";
 import axios from "axios";
@@ -15,16 +15,18 @@ import { connect } from "react-redux";
 import { updateObject } from "../../store/utility";
 import showDeleteConfirm from '../../components/delete-modal';
 import constants from '../../constants';
+import NumericInput from "../../components/days-input";
 
+const { InputGroup } = Input.Group;
 const { RangePicker } = DatePicker;
 
 const rangeConfig = {
-  rules: [{ type: "array", required: true, message: "Please select time!" }]
+  rules: [{ type: "array", required: true, message: "Please select duration!" }]
 };
 
 const Duration = (
   <RangePicker
-    format="YYYY/MM/DD HH:mm:ss"
+    format="DD HH:mm:ss"
     ranges={{
       "This day": [moment().startOf("day"), moment().endOf("day")],
       "This Month": [moment().startOf("month"), moment().endOf("month")],
@@ -56,11 +58,15 @@ class CreateProjectForm extends React.Component {
     prj_description: 2000
   };
 
+  handleDurationChange = e => {
+    console.log('Duration Change Value: ', e);
+  };
+
   handleChange = e => {
     e.preventDefault();
     let { form_vals } = this.state;
     let mod_form_vals = updateObject({ form_vals }, { form_vals: { [e.target.id]: e.target.value } });
-    console.log('Modified Vlas: ', mod_form_vals)
+    console.log('Modified Fields: ', mod_form_vals);
     this.setState(updateObject(this.state, mod_form_vals));
   };
 
@@ -72,20 +78,18 @@ class CreateProjectForm extends React.Component {
           Authorization: `Token ${this.props.token}`,
         };
         let form_data = new FormData();
+        const {isFieldTouched, isFieldsTouched, getFieldValue} = this.props.form;
         // add one or more of your files in FormData
         // again, the original file is located at the `originFileObj` key
-        form_data.append("avatar", this.state.selectedFiles[0].originFileObj);
-
         if (this.state.method === 'post') {
-          let diff = vals.duration[1].diff(vals.duration[0]);
           // Create Project
-          let form_data = new FormData();
           // add one or more of your files in FormData
           // again, the original file is located at the `originFileObj` key
-          form_data.append('duration', diff);
-          form_data.append('name', vals.prj_name);
-          form_data.append('description', vals.prj_description);
-          axios
+            form_data.append("avatar", getFieldValue('avatar')[0].originFileObj);
+            form_data.append('duration', `${vals.days} ${vals.time.format('HH:mm:ss').toString()}`);
+            form_data.append('name', vals.prj_name);
+            form_data.append('description', vals.prj_description);
+            axios
             .post(constants.HOST + "/api/project/", form_data)
             .then(res => {
               console.log(res.data);
@@ -99,11 +103,26 @@ class CreateProjectForm extends React.Component {
           let prj_id = this.state.prj_id;
           let { form_vals } = this.state;
           let mod_vals = updateObject(vals, form_vals);
-          form_data.append('name', mod_vals.prj_name);
-          form_data.append('description', mod_vals.prj_description);
-          form_data.append('duration', mod_vals.duration);
-          console.log('Form Data: ', form_data);
-          axios.put(`${constants.HOST}/api/project/${prj_id}/`, form_data).then(res => {
+
+          if(isFieldTouched('avatar')) {
+              form_data.append("avatar", getFieldValue('avatar')[0].originFileObj);
+          }
+
+          if(isFieldTouched('prj_name')) {
+            form_data.append('name', mod_vals.prj_name);
+          }
+
+          if(isFieldTouched('prj_description')) {
+            form_data.append('description', mod_vals.prj_description);
+          }
+
+          let isDurationTouched = isFieldTouched('days') || isFieldTouched('time');
+          if(isDurationTouched){
+              form_data.append('duration',
+                  `${getFieldValue('days')} ${getFieldValue('time').format('HH:mm:ss').toString()}`);
+          }
+          let partial = !(isFieldsTouched(['avatar', 'prj_name', 'prj_description']) && isDurationTouched);
+          axios.patch(`${constants.HOST}/api/project/${prj_id}/`, form_data).then(res => {
             console.log('Successful Updation: ', res.data);
             this.props.history.push('/')
           }).catch(err => console.error(err));
@@ -124,19 +143,54 @@ class CreateProjectForm extends React.Component {
     }
   };
 
-  componentDidMount() {
+   componentDidMount() {
     if (this.state.isEdit || this.state.isDisabled) {
       let prj_id = this.state.prj_id;
       let { setFieldsValue } = this.props.form;
       axios.get(`${constants.HOST}/api/project/${prj_id}/`)
-        .then(res => {
+        .then(async res => {
           const project = res.data;
-          setFieldsValue({
-            prj_name: project.name,
-            prj_description: project.description,
-            duration: project.duration,
-            avatar: project.avatar,
-          });
+          const vals = project.duration.split(' ');
+          let field_vals = {};
+          if(project.avatar){
+              let originFileObj = await axios.get(project.avatar, {headers: {
+                  'Content-Type': 'application/octet-stream'
+                  }
+                }).then(res => {
+                    console.log(res);
+                    let av_name = project.avatar.split('/').pop();
+                    return new File([res.data], av_name, {
+                        type: res.headers['content-type'],
+                        lastModified: res.headers['last-modified'],
+                    });
+                });
+                let obj = {
+                  uid: -1,
+                  "lastModified": originFileObj.lastModified,
+                  "lastModifiedDate": originFileObj.lastModifiedDate,
+                  "name": originFileObj.name,
+                  "size": originFileObj.size,
+                  "type": originFileObj.type,
+                  "status": "done",
+                  "thumbUrl": project.avatar,
+                };
+                field_vals = {
+                    prj_name: project.name,
+                    prj_description: project.description,
+                    days: Number(vals[0]),
+                    time: moment(vals[1], 'HH:mm:ss'),
+                    avatar: [updateObject(obj, {originFileObj} )],
+                }
+          } else {
+              field_vals = {
+                    prj_name: project.name,
+                    prj_description: project.description,
+                    days: Number(vals[0]),
+                    time: moment(vals[1], 'HH:mm:ss'),
+              }
+
+          }
+          setFieldsValue(field_vals);
         })
         .catch(err => console.error(err));
     }
@@ -150,48 +204,37 @@ class CreateProjectForm extends React.Component {
         isEdit: !this.state.isEdit,
       });
     this.setState(new_state);
-  }
-
-  handleUpload = ({ file, fileList }) => {
-    //---------------^^^^^----------------
-    // this is equivalent to your "const img = event.target.files[0]"
-    // here, antd is giving you an array of files, just like event.target.files
-    // but the structure is a bit different that the original file
-    // the original file is located at the `originFileObj` key of each of this files
-    // so `event.target.files[0]` is actually fileList[0].originFileObj
-
-    // you store them in state, so that you can make a http req with them later
-    var spArr = file.name.split('.');
-    let ext = spArr[spArr.length - 1];
-    console.log('Extendsion: ', ext);
-    if (ext && ext.toLowerCase() === 'jpg') {
-      console.log('Handle Upload success');
-      let new_state = updateObject(this.state,
-        { 'selectedFiles': fileList });
-      this.setState(new_state);
-    }
   };
 
-
-  fileUploadValidator = (rule, value, callback) => {
-    console.log('FileValidator: ', value);
-    const { file } = value;
-    var spArr = file.name.split('.');
-    let ext = spArr[spArr.length - 1]
-    if (!ext) {
-      callback('Don\'t leave it empty');
-    } else if (ext && ext.toLowerCase() !== 'jpg') {
-      callback('Only .jpg images are supported, please upload .jpg images')
-    } else {
-      callback();
+  beforeUpload = (file) => {
+    const isJpgOrPng = file.type === 'image/jpeg';
+    if (!isJpgOrPng) {
+      message.error('You can only upload JPG file!');
     }
-  }
+    return isJpgOrPng;
+  };
+
+  dummyRequest = ({file, onSuccess}) => {
+      setTimeout(() => {
+          onSuccess('ok');
+      }, 0)
+  };
+
+  normFile = (e) => {
+      if(Array.isArray(e)) {
+          return e
+      }
+      if(e.fileList.length > 1) {
+          e.fileList.shift();
+      }
+      return e && e.fileList;
+  };
+
 
   render() {
     const { isEdit, isDisabled, method } = this.state;
     const { getFieldDecorator, getFieldValue } = this.props.form;
     const { token } = this.props;
-    console.log('Project Delete Token: ', method);
     return (
       <Form onSubmit={this.handleSubmit} className="login-form">
         <Form.Item>
@@ -227,7 +270,31 @@ class CreateProjectForm extends React.Component {
               )}
             </Col>
           </Row>
-
+        </Form.Item>
+        <Form.Item>
+          <Row type='flex' justify='start'>
+            <Col span={4}>
+              {
+                getFieldDecorator('avatar', {
+                rules: [
+                  { required: false }
+                ],
+                    valuePropName: 'fileList',
+                    getValueFromEvent: this.normFile,
+              })
+                (<Upload
+                    customRequest={this.dummyRequest}
+                  // onChange={this.handleUpload}
+                  beforeUpload={this.beforeUpload}
+                  disabled={isDisabled}
+                  listType='picture-card'
+                >
+                    <Button icon='upload'>
+                      Upload Project Avatar
+                    </Button>
+                </Upload>)}
+            </Col>
+          </Row>
         </Form.Item>
         <Form.Item>
           {getFieldDecorator("prj_name", {
@@ -269,31 +336,28 @@ class CreateProjectForm extends React.Component {
           )}
         </Form.Item>
         <Form.Item>
-          <Row type='flex' justify='start'>
-            <Col span={4}>
-              {getFieldDecorator('avatar', {
-                rules: [
-                  { required: false }
-                  , { validator: this.fileUploadValidator }
-                ]
-              })
-                (<Upload
-                  onChange={this.handleUpload}
-                  beforeUpload={() => false}
-                  disabled={isDisabled}
-                  listType='picture'>
-                  <Button icon='upload'>
-                    Upload
-                  </Button>
-                </Upload>)}
-            </Col>
-          </Row>
-        </Form.Item>
-        <Form.Item>
           {
-            isEdit || isDisabled ? getFieldDecorator('duration', { rules: [{ required: false }] })(< Input onChange={this.handleChange} disabled={isDisabled} />) : getFieldDecorator("duration", rangeConfig)(Duration)
+            getFieldDecorator('days', { rules: [{ required: false }] })
+            (
+            <NumericInput
+                style={{ width: 180 }}
+                addonBefore={
+                  getFieldDecorator('time', { rules: [{ required: false }] })
+                  (
+                      <TimePicker
+                          disabled={isDisabled}
+                          // onChange={this.handleChange}
+                          defaultOpenValue={moment('00:00:00', 'HH:mm:ss')} />
+                  )
+                }
+                onChange={this.handleChange}
+                disabled={isDisabled}
+                placeholder='No of Days(+ve int)'
+            />
+            )
           }
         </Form.Item>
+
 
 
       </Form>
