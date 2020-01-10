@@ -17,26 +17,6 @@ import showDeleteConfirm from '../../components/delete-modal';
 import constants from '../../constants';
 import NumericInput from "../../components/days-input";
 
-const { InputGroup } = Input.Group;
-const { RangePicker } = DatePicker;
-
-const rangeConfig = {
-  rules: [{ type: "array", required: true, message: "Please select duration!" }]
-};
-
-const Duration = (
-  <RangePicker
-    format="DD HH:mm:ss"
-    ranges={{
-      "This day": [moment().startOf("day"), moment().endOf("day")],
-      "This Month": [moment().startOf("month"), moment().endOf("month")],
-      "This Week": [moment().startOf("day"), moment().endOf("week")],
-      "This Year": [moment().startOf("day"), moment().endOf("year")]
-    }}
-    showTime
-  />
-);
-
 
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
@@ -50,7 +30,6 @@ class CreateProjectForm extends React.Component {
     form_vals: {},
     method: this.props.method,
     prj_id: this.props.match.params.projectID,
-    selectedFiles: [],
   };
 
   VALID_LENGTH = {
@@ -58,15 +37,10 @@ class CreateProjectForm extends React.Component {
     prj_description: 2000
   };
 
-  handleDurationChange = e => {
-    console.log('Duration Change Value: ', e);
-  };
-
   handleChange = e => {
     e.preventDefault();
     let { form_vals } = this.state;
     let mod_form_vals = updateObject({ form_vals }, { form_vals: { [e.target.id]: e.target.value } });
-    console.log('Modified Fields: ', mod_form_vals);
     this.setState(updateObject(this.state, mod_form_vals));
   };
 
