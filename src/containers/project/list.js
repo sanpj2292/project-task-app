@@ -34,7 +34,14 @@ class Projects extends React.Component {
     {
       title: "Project Description",
       dataIndex: "description",
-      key: "description"
+      key: "description",
+      render: (text, record) => {
+                if(text && text !== '') {
+                    return text;
+                } else {
+                    return '-';
+                }
+              }
     },
     {
       title: "Project Duration",

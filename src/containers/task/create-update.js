@@ -82,7 +82,7 @@ class TaskCreateUpdateForm extends Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
-        this.props.form.validateFields((err, vals) => {
+        this.props.form.validateFields(['task_name', 'date_range'], (err, vals) => {
             if (!err) {
                 if(this.props.token) {
                     const {isFieldTouched, getFieldValue} = this.props.form;
@@ -95,7 +95,11 @@ class TaskCreateUpdateForm extends Component {
                         let { proj_id } = this.state;
                         let url = `${constants.HOST}/api/project/${proj_id}/task/`;
                         form_data.append('name', vals.task_name);
-                        form_data.append('description', vals.task_description);
+                        if(vals.task_description && vals.task_description !== '') {
+                            form_data.append('description', vals.task_description);
+                        } else {
+                            form_data.append('description', '');
+                        }
                         form_data.append('start_date', vals.date_range[0].format('YYYY/MM/DD'));
                         form_data.append('end_date', vals.date_range[1].format('YYYY/MM/DD'));
                         form_data.append('project_id', proj_id);

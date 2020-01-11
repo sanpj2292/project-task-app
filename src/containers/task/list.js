@@ -26,7 +26,14 @@ class TaskList extends Component {
         {
             title: "Task Description",
             dataIndex: "description",
-            key: "description"
+            key: "description",
+            render: (text, record) => {
+                if(text && text !== '') {
+                    return text;
+                } else {
+                    return '-';
+                }
+            }
         },
         {
             title: "Start Date",
