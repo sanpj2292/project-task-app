@@ -159,3 +159,8 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 DATE_INPUT_FORMATS = ['%Y/%m/%d']
 DATE_FORMAT = '%Y/%m/%d'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+PROJECT_AVATAR_SIZE = (200, 200)
