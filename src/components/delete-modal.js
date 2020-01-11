@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal } from 'antd';
+import { Modal, message } from 'antd';
 import axios from "axios";
 
 
@@ -24,10 +24,12 @@ function showDeleteConfirm(props) {
                     window.location.reload();
                 else
                     window.location.href = redirectUrl;
-            }).catch(err => console.error(err));
+            }).catch(err => {
+                message.error(err.response.statusText);
+            });
         }
     });
-};
+}
 
 
 export default showDeleteConfirm;
