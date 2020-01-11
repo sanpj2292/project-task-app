@@ -4,10 +4,21 @@ import { Link, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import * as actions from '../store/actions/auth';
 
-const { Header, Content, Footer } = Layout;
+const { Header, Content } = Layout;
 
 class CustomLayout extends React.Component {
+
+  handleLogout = async () => {
+    try {
+      await this.props.logout();
+      this.props.history.push('/login/');
+    } catch (e) {
+      console.error(e.message);
+    }
+  };
+
   render() {
+    console.log('Layout: ', this.props.location.pathname.split('/')[1]);
     return (
       <Layout className="layout">
         <Header>
@@ -15,16 +26,16 @@ class CustomLayout extends React.Component {
           <Menu
             theme="dark"
             mode="horizontal"
-            defaultSelectedKeys={['1']}
+            selectedKeys={[this.props.location.pathname.split('/')[1],]}
             style={{ lineHeight: '64px' }}
           >
-            <Menu.Item key="1">
-              <Link to='/'>Projects</Link>
+            <Menu.Item key="project">
+              <Link to='/project/'>Projects</Link>
             </Menu.Item>
             {this.props.isAuthenticated ?
-              (<Menu.Item key="2" onClick={this.props.logout}>Logout</Menu.Item>) :
-              (<Menu.Item key="2">
-                <Link to='/login'>Login</Link>
+              (<Menu.Item key="login" onClick={this.handleLogout}>Logout</Menu.Item>) :
+              (<Menu.Item key="login">
+                <Link to='/login/'>Login</Link>
               </Menu.Item>)
             }
           </Menu>

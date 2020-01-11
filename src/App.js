@@ -2,9 +2,9 @@ import React from 'react';
 import 'antd/dist/antd.css';
 import {connect} from "react-redux";
 import CustomLayout from './containers/CustomLayout'
-import BaseRouter from "./routes";
-import {BrowserRouter as Router} from "react-router-dom";
+import BaseRouter from "./routes/routes";
 import * as actions from './store/actions/auth';
+import { withRouter } from 'react-router-dom';
 
 class App extends React.Component{
     componentDidMount() {
@@ -13,13 +13,9 @@ class App extends React.Component{
 
     render() {
         return (
-            <div>
-                <Router>
-                    <CustomLayout {...this.props}>
-                        <BaseRouter/>
-                    </CustomLayout>
-                </Router>
-            </div>
+            <CustomLayout {...this.props}>
+                <BaseRouter history={this.props.history} {...this.props}/>
+            </CustomLayout>
         );
     }
 }
@@ -38,4 +34,4 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(App));

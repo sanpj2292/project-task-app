@@ -326,6 +326,7 @@ class TaskCreateUpdateForm extends Component {
                                 placeholder='Select Assignee for the Task'
                                 dataSource={this.state.userDataSource}
                                 onSelect={this.onSelect}
+                                disabled={isDisabled}
                             />
                         )
                     }

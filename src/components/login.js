@@ -1,27 +1,24 @@
 import React from "react";
 import './css/login.css';
-import { Form, Icon, Input, Button, Checkbox, Row, Col, Spin, Alert } from 'antd';
+import { Form, Icon, Input, Button, Checkbox, Row, Col, Spin, Alert, message } from 'antd';
 import { connect } from 'react-redux';
-import * as actions from '../store/actions/auth'
+import * as actions from '../store/actions/auth';
+import {push} from 'react-router-redux';
+import {withRouter} from 'react-router-dom';
 
 
 const antIcon = <Icon type='loading' style={{ fontSize: 24 }} spin />;
 
 class LoginForm extends React.Component {
+
   handleSubmit = e => {
     e.preventDefault();
-    this.props.form.validateFields((err, values) => {
+    this.props.form.validateFields( (err, values) => {
       if (!err) {
         this.props.onAuth(values.username, values.password);
-        if (!this.props.error) {
-          this.props.history.push('/');
-        }
-      } else {
-        window.location.reload();
       }
     });
   };
-
 
 
   render() {
@@ -91,12 +88,13 @@ const mapStateToProps = state => {
   return {
     loading: state.loading,
     error: state.error,
+    isAuthenticated: state.token !== null,
   }
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    onAuth: (username, password) => dispatch(actions.authLogin(username, password))
+    onAuth: (username, password) =>  dispatch(actions.authLogin(username, password))
   }
 };
 

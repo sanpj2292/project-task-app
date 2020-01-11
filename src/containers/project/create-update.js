@@ -66,7 +66,6 @@ class CreateProjectForm extends React.Component {
             axios
             .post(constants.HOST + "/api/project/", form_data)
             .then(res => {
-              console.log(res.data);
               this.props.history.push("/");
             })
             .catch(err => {
@@ -96,9 +95,8 @@ class CreateProjectForm extends React.Component {
               form_data.append('duration',
                   `${getFieldValue('days')} ${getFieldValue('time').format('HH:mm:ss').toString()}`);
           }
-          let partial = !(isFieldsTouched(['avatar', 'prj_name', 'prj_description']) && isDurationTouched);
           axios.patch(`${constants.HOST}/api/project/${prj_id}/`, form_data).then(res => {
-            console.log('Successful Updation: ', res.data);
+            message.success('Successfully Updated');
             this.props.history.push('/')
           }).catch(err => {
               console.error(err);
@@ -135,7 +133,6 @@ class CreateProjectForm extends React.Component {
                   'Content-Type': 'application/octet-stream'
                   }
                 }).then(res => {
-                    console.log(res);
                     let av_name = project.avatar.split('/').pop();
                     return new File([res.data], av_name, {
                         type: res.headers['content-type'],

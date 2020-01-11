@@ -7,14 +7,21 @@ import { createStore, compose, applyMiddleware } from "redux";
 import thunk from "redux-thunk";
 import { Provider } from "react-redux";
 import reducer from './store/reducers/auth';
+import {createBrowserHistory} from 'history';
+import {routerMiddleware } from 'react-router-redux';
+import { Router } from 'react-router-dom';
 
 const composeEnhances = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
+const history = createBrowserHistory();
 const store = createStore(reducer,
-    composeEnhances(applyMiddleware(thunk))
+    composeEnhances(applyMiddleware(thunk, routerMiddleware(history)))
 );
 const app = (
     <Provider store={store}>
-        <App />
+        <Router history={history}>
+            <App history={ history }/>
+        </Router>
     </Provider>
 );
 

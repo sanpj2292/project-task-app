@@ -1,6 +1,7 @@
 import * as actionTypes from './actionTypes';
 import axios from 'axios';
 import constants from '../../constants';
+import {push} from 'react-router-redux';
 
 export const authCheckState = () => {
     return dispatch => {
@@ -72,18 +73,13 @@ export const authLogin = (username, password) => {
                 localStorage.setItem('expirationDate', expirationDate);
                 dispatch(authSuccess(token));
                 dispatch(checkAuthTimeOut(3600));
+                dispatch(push('/project/'))
             })
             .catch(err => dispatch(authFail(err)));
     }
 };
 
 export const authSignUp = (username, email, password1, password2) => {
-    console.log('Auth Sign Up', {
-        username: username,
-        email: email,
-        password1: password1,
-        password2: password2,
-    });
     return dispatch => {
         dispatch(authStart());
         axios.post(constants.HOST + '/rest-auth/registration/', {
