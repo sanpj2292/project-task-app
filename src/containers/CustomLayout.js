@@ -18,7 +18,6 @@ class CustomLayout extends React.Component {
   };
 
   render() {
-    console.log('Layout: ', this.props.location.pathname.split('/')[1]);
     return (
       <Layout className="layout">
         <Header>

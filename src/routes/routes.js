@@ -10,7 +10,6 @@ import TaskDetail from "../containers/task/detail";
 import AuthenticatedRoute from "./authenticated-routes";
 
 const BaseRouter = (props) => {
-    console.log(props.isAuthenticated);
     return (
           <div>
             <Route exact path="/login/" component={Login} />

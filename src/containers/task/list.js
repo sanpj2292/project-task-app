@@ -83,8 +83,7 @@ class TaskList extends Component {
                                 user_map[user.id] = user.username;
                             });
                         }).catch(err => {
-                            console.log(err);
-                            message.error('Err')
+                            message.error(err.message)
                         });
                 await axios
                     .get(url)

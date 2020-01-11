@@ -92,7 +92,6 @@ class TaskCreateUpdateForm extends Component {
                         axios.defaults.headers = {
                             Authorization: `Token ${this.props.token}`
                         };
-                        console.log('Task Creation Token: ', this.props.token);
                         let { proj_id } = this.state;
                         let url = `${constants.HOST}/api/project/${proj_id}/task/`;
                         form_data.append('name', vals.task_name);
@@ -155,7 +154,6 @@ class TaskCreateUpdateForm extends Component {
             await axios.get(`${constants.HOST}/api/project/${prj_id}/task/${task_id}`)
                 .then(res => {
                     const task = res.data;
-                    console.log('Task Values: ', task);
                     task_name = task.name;
                     task_description = task.description;
                     start_date = moment(task.start_date, 'YYYY/MM/DD');
@@ -169,7 +167,6 @@ class TaskCreateUpdateForm extends Component {
         let user_id_dict = {};
         await axios.get(`${constants.HOST}/api/user/`)
             .then(res => {
-                console.log('User', res.data);
                 let user_data_list = res.data;
                 let user_dict = {};
                 let user_list = [];
@@ -220,9 +217,6 @@ class TaskCreateUpdateForm extends Component {
         }
     };
 
-    onSelect = (val, opt) => {
-        console.log('Selected Option: ',val);
-    };
 
 
     render() {
@@ -325,7 +319,6 @@ class TaskCreateUpdateForm extends Component {
                             <UserInput
                                 placeholder='Select Assignee for the Task'
                                 dataSource={this.state.userDataSource}
-                                onSelect={this.onSelect}
                                 disabled={isDisabled}
                             />
                         )
