@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { Table, Button, Tooltip, Row, Col } from "antd";
+import {Table, Button, Tooltip, Row, Col, message, Typography} from "antd";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import showDeleteConfirm from '../../components/delete-modal';
 import constants from '../../constants';
 
+const {Text} = Typography;
 
 class TaskList extends Component {
 
@@ -35,9 +36,19 @@ class TaskList extends Component {
             title: "End Date",
             dataIndex: "end_date",
             key: "end_date"
-        }, {
+        },
+        {
+            title: "Assignee",
+            dataIndex: "assignee",
+            key: "assignee",
+            render:  (text, record) => {
+                return <Row type='flex' justify='center'><Text mark>{text}</Text></Row>
+            }
+        },
+        {
             title: 'Action(Delete)',
             dataIndex: 'id',
+            key: 'id',
             render: (text, record) => {
                 const { token } = this.state;
                 return (
@@ -49,7 +60,8 @@ class TaskList extends Component {
                             dataKey: `${record.name}`
                         })
                         }
-                        type="danger" >
+                        type="danger"
+                        icon='delete'>
                         Delete
                 </Button >
                 )
@@ -57,21 +69,43 @@ class TaskList extends Component {
         }
     ];
 
-    componentDidMount() {
-        let prj_id = this.state.project_id;
-        let url = constants.HOST + "/api/project/";
-        if (prj_id) {
-            url = `${constants.HOST}/api/project/${prj_id}/task/`;
-            axios
-                .get(url)
-                .then(res => {
-                    const tasks = res.data;
-                    console.log(tasks)
-                    this.setState({ tasks: tasks });
-                })
-                .catch(err => console.error(err));
-        } else {
-            console.error('Invalid URL provided');
+    async componentDidMount() {
+        try {
+            let prj_id = this.state.project_id;
+            let url = constants.HOST + "/api/project/";
+            if (prj_id) {
+                url = `${constants.HOST}/api/project/${prj_id}/task/`;
+                let user_map = {};
+                await axios.get(`${constants.HOST}/api/user/`)
+                        .then(res => {
+                            let user_list = res.data;
+                            user_list.forEach(user => {
+                                user_map[user.id] = user.username;
+                            });
+                        }).catch(err => {
+                            console.log(err);
+                            message.error('Err')
+                        });
+                await axios
+                    .get(url)
+                    .then(res => {
+                        const tasks = res.data;
+                        tasks.forEach((task, k) => {
+                            tasks[k].key = k;
+                            if(task.assignee && task.assignee!==0 && task.assignee !== '') {
+                                tasks[k].assignee = user_map[task.assignee];
+                            } else {
+                                tasks[k].assignee = '-';
+                            }
+                        });
+                        this.setState({ tasks: tasks });
+                    })
+                    .catch(err => console.error(err));
+            } else {
+                console.error('Invalid URL provided');
+            }
+        } catch (e) {
+
         }
     }
 
@@ -90,7 +124,7 @@ class TaskList extends Component {
                 </Row>
                 <Row gutter={[8, 24]}>
                     <Col span={4.5}>
-                        <Table columns={this.columns} bordered dataSource={tasks}></Table>
+                        <Table columns={this.columns} bordered dataSource={tasks} />
                     </Col>
                 </Row>
             </div>

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Project as ProjectModel, Task as TaskModel
+from .models import Project as ProjectModel, Task as TaskModel, UserModel
 from djreact import settings
 
 
@@ -28,9 +28,17 @@ class TasksSerializer(serializers.ModelSerializer):
     class Meta:
         model = TaskModel
         fields = ('id', 'name', 'description', 'start_date',
-                  'end_date', 'project_id', 'created_by')
+                  'end_date', 'project_id', 'created_by', 'assignee')
         read_only_fields = ('created_by',)
 
     def create(self, validated_data):
         req = self.context['request']
         return TaskModel.objects.create(**validated_data, created_by=req.user)
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserModel
+        fields = ('id', 'username')
+        read_only_fields = ('id', 'username')

@@ -1,5 +1,5 @@
 import React from "react";
-import { Table, Button, Row, Col } from "antd";
+import {  Button, Row, Col } from "antd";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import * as moment from "moment";
@@ -70,7 +70,6 @@ class Projects extends React.Component {
       .get(url)
       .then(res => {
         const projects = res.data;
-        console.log(projects)
         this.setState({ projects: projects });
       })
       .catch(err => console.error(err));
@@ -82,9 +81,9 @@ class Projects extends React.Component {
       <div>
         <Row gutter={[16, 16]}>
           {
-            projects.map(proj =>
-              <Col className="gutter-row" span={8} >
-                <ProjectCard project={proj} token={this.props.token} />
+            projects.map((proj, i) =>
+              <Col key={`proj-col-${i}`} className="gutter-row" span={8} >
+                <ProjectCard project={proj} key={i} token={this.props.token} />
               </Col>)
           }
         </Row>

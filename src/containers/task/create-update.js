@@ -6,13 +6,14 @@ import {
     Form,
     Icon,
     Input,
-    Tooltip, Row, Col
+    Tooltip, Row, Col, message
 } from "antd";
 import { updateObject } from "../../store/utility";
 import moment from "moment";
 import axios from "axios";
 import showDeleteConfirm from '../../components/delete-modal';
 import constants from '../../constants';
+import UserInput from "../../components/user-input";
 
 const { RangePicker } = DatePicker;
 
@@ -51,6 +52,8 @@ class TaskCreateUpdateForm extends Component {
         form_vals: {},
         tasks: [],
         method: this.props.method,
+        userDataSource: [],
+        userDict: {},
     };
 
     VALID_LENGTH = {
@@ -81,72 +84,122 @@ class TaskCreateUpdateForm extends Component {
         e.preventDefault();
         this.props.form.validateFields((err, vals) => {
             if (!err) {
-                if (this.state.method === 'post' && this.props.token) {
-                    axios.defaults.headers = {
-                        Authorization: `Token ${this.props.token}`
-                    };
-                    console.log('Task Creation Token: ', this.props.token);
-                    let { proj_id } = this.state;
-                    let url = `${constants.HOST}/api/project/${proj_id}/task/`;
-                    axios
-                        .post(url, {
-                            name: vals.task_name,
-                            description: vals.task_description,
-                            start_date: vals.date_range[0].format('YYYY/MM/DD'),
-                            end_date: vals.date_range[1].format('YYYY/MM/DD'),
-                            project_id: proj_id,
-                        }).then(res => {
+                if(this.props.token) {
+                    const {isFieldTouched, getFieldValue} = this.props.form;
+                    const {userDict} = this.state;
+                    let form_data = new FormData();
+                    if (this.state.method === 'post') {
+                        axios.defaults.headers = {
+                            Authorization: `Token ${this.props.token}`
+                        };
+                        console.log('Task Creation Token: ', this.props.token);
+                        let { proj_id } = this.state;
+                        let url = `${constants.HOST}/api/project/${proj_id}/task/`;
+                        form_data.append('name', vals.task_name);
+                        form_data.append('description', vals.task_description);
+                        form_data.append('start_date', vals.date_range[0].format('YYYY/MM/DD'));
+                        form_data.append('end_date', vals.date_range[1].format('YYYY/MM/DD'));
+                        form_data.append('project_id', proj_id);
+                        if(isFieldTouched('assignee') && getFieldValue('assignee') !== '') {
+                            let key = getFieldValue('assignee');
+                            form_data.append('assignee', userDict[key]);
+                        }
+                        axios.post(url, form_data
+                            ).then(res => {
+                                this.props.history.push(`/project/${proj_id}/`);
+                            }).catch(err => {
+                                console.error(err);
+                                message.error('Task creation Failed!, please create with correct values');
+                            });
+                    } else if (this.state.method === 'put' ) {
+                        axios.defaults.headers = {
+                            Authorization: `Token ${this.props.token}`
+                        };
+                        let {proj_id} = this.state;
+                        let task_id = this.props.match.params.taskID;
+                        let url = `${constants.HOST}/api/project/${proj_id}/task/${task_id}/`;
+                        form_data.append('name', vals.task_name);
+                        form_data.append('description', vals.task_description);
+                        form_data.append('start_date', vals.date_range[0].format('YYYY/MM/DD'));
+                        form_data.append('end_date', vals.date_range[1].format('YYYY/MM/DD'));
+                        form_data.append('project_id', proj_id);
+                        if(isFieldTouched('assignee') && getFieldValue('assignee') !== '') {
+                            let key = getFieldValue('assignee');
+                            form_data.append('assignee', userDict[key]);
+                        }
+                        axios.put(url, form_data).then(res => {
                             this.props.history.push(`/project/${proj_id}/`);
                         }).catch(err => {
                             console.error(err);
+                            message.error('Task updation Failed!, please update with correct values');
                         });
+                    }
                 } else {
-                    console.error('Missing Token or calling wrong method');
+                    message.error('Please Login and Try Again', 3);
                 }
-            } else if (this.state.method === 'put' && this.props.token) {
-                axios.defaults.headers = {
-                    Authorization: `Token ${this.props.token}`
-                };
-                let { proj_id } = this.state;
-                let task_id = this.props.match.params.taskID;
-                let url = `${constants.HOST}/api/project/${proj_id}/task/${task_id}`;
-                axios.put(url, {
-                    name: vals.task_name,
-                    description: vals.task_description,
-                    start_date: vals.date_range[0].format('YYYY/MM/DD'),
-                    end_date: vals.date_range[1].format('YYYY/MM/DD'),
-                    project_id: proj_id,
-                }).then(res => {
-                    this.props.history.push(`/project/${proj_id}/`);
-                }).catch(err => {
-                    console.error(err);
-                });
-            } else {
-                console.error('Some Error Occurred!: ', err)
             }
         });
-    }
+    };
 
-    componentDidMount() {
+    async componentDidMount() {
+        try {
+        let assignee = 0;
+        let task_name = '';
+        let task_description = '';
+        let start_date = '';
+        let end_date = '';
+        let { setFieldsValue } = this.props.form;
         if (this.state.isEdit || this.state.isDisabled) {
             let prj_id = this.props.match.params.projectID;
             let task_id = this.props.match.params.taskID;
-            let { setFieldsValue } = this.props.form;
-            axios.get(`${constants.HOST}/api/project/${prj_id}/task/${task_id}`)
+            await axios.get(`${constants.HOST}/api/project/${prj_id}/task/${task_id}`)
                 .then(res => {
                     const task = res.data;
                     console.log('Task Values: ', task);
-                    let st_date = moment(task.start_date, 'YYYY/MM/DD');
-                    let en_date = moment(task.end_date, 'YYYY/MM/DD');
-                    setFieldsValue({
-                        task_name: task.name,
-                        task_description: task.description,
-                        date_range: [st_date, en_date],
-                    });
+                    task_name = task.name;
+                    task_description = task.description;
+                    start_date = moment(task.start_date, 'YYYY/MM/DD');
+                    end_date = moment(task.end_date, 'YYYY/MM/DD');
+                    if(task.assignee && task.assignee !== ''){
+                        assignee = task.assignee;
+                    }
                 })
                 .catch(err => console.error(err));
         }
+        let user_id_dict = {};
+        await axios.get(`${constants.HOST}/api/user/`)
+            .then(res => {
+                console.log('User', res.data);
+                let user_data_list = res.data;
+                let user_dict = {};
+                let user_list = [];
+                user_data_list.forEach(user => {
+                    user_dict[user.username] = user.id;
+                    user_id_dict[user.id] = user.username;
+                    user_list.push(user.username);
+                });
+                let new_state = updateObject(this.state, {
+                    userDataSource: user_list,
+                    userDict: user_dict,
+                });
+                this.setState(new_state);
+            }).catch(err => {
+                console.error(err);
+                message.error('Error occurred')
+            });
+            await setFieldsValue({
+                task_name: task_name,
+                task_description: task_description,
+                date_range: [start_date, end_date],
+                assignee: user_id_dict[assignee]
+            });
+        } catch (err) {
+            console.error('Some Error occurred in Rendering: ', err);
+            message.error('Some Error occurred in Rendering');
+        }
+
     }
+
 
     editClick = () => {
         let new_state = updateObject(this.state,
@@ -156,7 +209,20 @@ class TaskCreateUpdateForm extends Component {
                 isEdit: !this.state.isEdit,
             });
         this.setState(new_state);
-    }
+    };
+
+    validateAssignee = (rule, value, callback) => {
+        const { userDict } = this.state;
+        if( value==='' || (userDict[value] && userDict[value] !== undefined)) {
+            callback();
+        } else if(userDict[value] === undefined) {
+            callback('Invalid User, please change input and try again!');
+        }
+    };
+
+    onSelect = (val, opt) => {
+        console.log('Selected Option: ',val);
+    };
 
 
     render() {
@@ -228,11 +294,9 @@ class TaskCreateUpdateForm extends Component {
                 <Form.Item>
                     {getFieldDecorator("task_description", {
                         rules: [
-                            {
-                                required: false,
-                            },
+                            { required: false },
                             { validator: this.validateInput }
-                        ]
+                        ],
                     })(
                         <Input.TextArea
                             placeholder={`Describe the task in ${this.VALID_LENGTH["task_description"]} words`}
@@ -247,6 +311,22 @@ class TaskCreateUpdateForm extends Component {
                     {
                         getFieldDecorator("date_range", rangeConfig)(
                             DateRangePicker(isDisabled)
+                        )
+                    }
+                </Form.Item>
+                <Form.Item>
+                    {
+                        getFieldDecorator("assignee", {
+                            rules: [
+                                { required: false },
+                                { validator: this.validateAssignee }
+                            ]
+                        })(
+                            <UserInput
+                                placeholder='Select Assignee for the Task'
+                                dataSource={this.state.userDataSource}
+                                onSelect={this.onSelect}
+                            />
                         )
                     }
                 </Form.Item>

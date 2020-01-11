@@ -49,8 +49,11 @@ class Task(models.Model):
     description = models.TextField(max_length=3000, blank=True, null=True)
     start_date = models.DateField()
     end_date = models.DateField()
-    created_by = models.ForeignKey(UserModel, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(UserModel, on_delete=models.CASCADE,
+                                   related_name='author')
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE)
+    assignee = models.ForeignKey(UserModel, on_delete=models.CASCADE, blank=True,
+                                 null=True)
 
     def __str__(self):
         return f'Task<{self.name}>'

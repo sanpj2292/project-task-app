@@ -71,6 +71,7 @@ class CreateProjectForm extends React.Component {
             })
             .catch(err => {
               console.error(err);
+              message.error('Project creation Failed!, please create with correct values');
             });
         } else if (this.state.method === 'put') {
           // Update Project
@@ -99,7 +100,10 @@ class CreateProjectForm extends React.Component {
           axios.patch(`${constants.HOST}/api/project/${prj_id}/`, form_data).then(res => {
             console.log('Successful Updation: ', res.data);
             this.props.history.push('/')
-          }).catch(err => console.error(err));
+          }).catch(err => {
+              console.error(err);
+              message.error('Project update Failed!, please update with correct values');
+          });
 
         }
       }
