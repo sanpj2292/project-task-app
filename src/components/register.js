@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Form, Row, Col, Input, Button } from 'antd';
+import {Form, Row, Col, Input, Button, Alert, message} from 'antd';
 import * as actions from "../store/actions/auth";
 import { connect } from 'react-redux';
 
@@ -39,17 +39,20 @@ class RegisterForm extends Component {
         this.props.form.validateFieldsAndScroll((err, vals) => {
             if (!err) {
                 this.props.onAuth(vals.username, vals.email, vals.password_1, vals.password_2);
-                this.props.history.push('/login');
             }
         });
     };
 
     render() {
         const { getFieldDecorator } = this.props.form;
+        const { error } = this.props;
         return (
             <Row type='flex' justify='center'>
                 <Col span={10}>
                     <Form onSubmit={this.handleSubmit}>
+                        {error ? <Alert message={Object.values(error.response.data)[0][0]}
+                                        closable type='error' />
+                                : null}
                         <Form.Item label='Username'>
                             {getFieldDecorator('username',
                                 {

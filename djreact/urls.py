@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from django.views.generic import TemplateView
 from django.conf import settings
-from django.conf.urls.static import static
+from django.conf.urls.static import static, serve
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,5 +25,9 @@ urlpatterns = [
     path('rest-auth/registration/', include('rest_auth.registration.urls')),
     path('api-auth/', include('rest_framework.urls')),
     path('api/', include('track_app.urls')),
-    re_path(r'^.*', TemplateView.as_view(template_name='index.html')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # re_path(r'', TemplateView.as_view(template_name='index.html')),
+    # path('static/<path:path>', serve, {'document_root': settings.STATIC_ROOT}),
+]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
