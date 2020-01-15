@@ -25,7 +25,7 @@ urlpatterns = [
     path('rest-auth/registration/', include('rest_auth.registration.urls')),
     path('api-auth/', include('rest_framework.urls')),
     path('api/', include('track_app.urls')),
-    # re_path(r'', TemplateView.as_view(template_name='index.html')),
+    re_path(r'', TemplateView.as_view(template_name='index.html')),
     # path('static/<path:path>', serve, {'document_root': settings.STATIC_ROOT}),
 ]
 
