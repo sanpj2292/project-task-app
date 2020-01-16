@@ -1,10 +1,8 @@
 import React from "react";
 import './css/login.css';
-import { Form, Icon, Input, Button, Checkbox, Row, Col, Spin, Alert, message } from 'antd';
+import { Form, Icon, Input, Button, Checkbox, Row, Col, Spin, Alert } from 'antd';
 import { connect } from 'react-redux';
 import * as actions from '../store/actions/auth';
-import {push} from 'react-router-redux';
-import {withRouter} from 'react-router-dom';
 
 
 const antIcon = <Icon type='loading' style={{ fontSize: 24 }} spin />;
