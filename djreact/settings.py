@@ -172,8 +172,6 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 DATE_INPUT_FORMATS = ['%Y/%m/%d']
 DATE_FORMAT = '%Y/%m/%d'
 
-# AWS_S3_USERID = 'prj-task-s3-user'
-
 AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
 AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
 
