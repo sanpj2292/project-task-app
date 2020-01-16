@@ -122,7 +122,7 @@ const Register = Form.create({ name: 'RegisterForm' })(RegisterForm);
 const mapStateToProps = state => {
     return {
         loading: state.loading,
-        error: state.error,
+        error: state.registerError,
     }
 };
 

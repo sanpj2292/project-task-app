@@ -43,6 +43,13 @@ export const authFail = err => {
     }
 };
 
+export const signUpFail = err => {
+    return {
+        type: actionTypes.SIGNUP_FAIL,
+        error: err,
+    }
+};
+
 export const authLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('expirationDate');
@@ -95,6 +102,6 @@ export const authSignUp = (username, email, password1, password2) => {
             dispatch(authSuccess(token));
             dispatch(checkAuthTimeOut(3600));
             dispatch(push('/project/'))
-        }).catch(err => dispatch(authFail(err)));
+        }).catch(err => dispatch(signUpFail(err)));
     }
 };

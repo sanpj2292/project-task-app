@@ -5,6 +5,7 @@ import {updateObject} from "../utility";
 const initialState = {
     token: null,
     error: null,
+    registerError: null,
     loading: false,
 };
 
@@ -30,6 +31,13 @@ const authFail = (state, action) => {
     });
 };
 
+const signUpFail = (state, action) => {
+    return updateObject(state, {
+        registerError: action.error,
+        loading: false
+    });
+};
+
 const authLogout = (state, action) => {
     return updateObject(state, {
         token: null,
@@ -47,6 +55,8 @@ const reducer = (state=initialState, action) => {
             return authLogout(state, action);
         case actionTypes.AUTH_SUCCESS:
             return authSuccess(state, action);
+        case actionTypes.SIGNUP_FAIL:
+            return signUpFail(state, action);
         default:
             return state;
     }
