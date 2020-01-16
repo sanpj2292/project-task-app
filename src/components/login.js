@@ -14,9 +14,9 @@ class LoginForm extends React.Component {
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields( (err, values) => {
-      if (!err) {
-        this.props.onAuth(values.username, values.password);
-      }
+      // retrieves the URL set on the PrivateRoute component above
+      let { from } = this.props.location.state || { from: { pathname: '/' } };
+      this.props.onAuth(values.username, values.password, from);
     });
   };
 
@@ -94,7 +94,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onAuth: (username, password) =>  dispatch(actions.authLogin(username, password))
+    onAuth: (username, password, from) =>  dispatch(actions.authLogin(username, password, from))
   }
 };
 
