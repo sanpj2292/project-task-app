@@ -25,8 +25,8 @@ SECRET_KEY = 'j+#nnfr1pg80&^p#@vf09b+orkp@(6(%@d1al=#%$_oj3jui9a'
 DEBUG = True
 
 ALLOWED_HOSTS = ['project-task-app.herokuapp.com',
-                 'localhost', '127.0.0.1']
-
+                 'localhost', '127.0.0.1',
+                 'prj-task-media.s3.us-east-2.amazonaws.com']
 
 # Application definition
 INSTALLED_APPS = [
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'track_app',
+    'storages',
 ]
 
 SITE_ID = 1
@@ -67,7 +68,7 @@ ROOT_URLCONF = 'djreact.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'build'),],
+        'DIRS': [os.path.join(BASE_DIR, 'build'), ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -156,7 +157,9 @@ REST_FRAMEWORK = {
 
 CORS_ORIGIN_WHITELIST = ['http://localhost:3000',
                          'https://project-task-app.herokuapp.com',
-                         'http://project-task-app.herokuapp.com']
+                         'http://project-task-app.herokuapp.com',
+                         'https://prj-task-media.s3.us-east-2.amazonaws.com',
+                         'http://prj-task-media.s3.us-east-2.amazonaws.com']
 
 CSRF_COOKIE_NAME = "csrftoken"
 
@@ -168,3 +171,22 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 DATE_INPUT_FORMATS = ['%Y/%m/%d']
 DATE_FORMAT = '%Y/%m/%d'
+
+# AWS_S3_USERID = 'prj-task-s3-user'
+
+AWS_ACCESS_KEY_ID = 'AKIA26ZZZRJXTFO26PFU'
+AWS_SECRET_ACCESS_KEY = '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'
+
+AWS_STORAGE_BUCKET_NAME = 'prj-task-media'
+
+AWS_S3_REGION_NAME = 'us-east-2'
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+
+AWS_IS_GZIPPED = True
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400'
+}
+
+AWS_DEFAULT_ACL = None
+
+DEFAULT_FILE_STORAGE = 'djreact.storage_backends.MediaStorage'

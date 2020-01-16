@@ -26,7 +26,7 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('api/', include('track_app.urls')),
     re_path(r'', TemplateView.as_view(template_name='index.html')),
-    # path('static/<path:path>', serve, {'document_root': settings.STATIC_ROOT}),
+    path('static/<path:path>', serve, {'document_root': settings.STATIC_ROOT}),
 ]
 
 if settings.DEBUG:
