@@ -129,8 +129,12 @@ class CreateProjectForm extends React.Component {
           const vals = project.duration.split(' ');
           let field_vals = {};
           if(project.avatar){
-              let originFileObj = await axios.get(project.avatar, {headers: {
+              let originFileObj = await axios.get(`${constants.HOST}/api/image/`, {
+                  headers: {
                   'Content-Type': 'application/octet-stream'
+                  },
+                  params: {
+                    fname: project.avatar.split('/').pop()
                   }
                 }).then(res => {
                     let av_name = project.avatar.split('/').pop();
@@ -138,7 +142,10 @@ class CreateProjectForm extends React.Component {
                         type: res.headers['content-type'],
                         lastModified: res.headers['last-modified'],
                     });
-                });
+                }).catch(err => {
+                    message.error(Object.values(err.response.data)[0][0]);
+                    console.error(err);
+              });
                 let obj = {
                   uid: -1,
                   "lastModified": originFileObj.lastModified,
@@ -167,7 +174,10 @@ class CreateProjectForm extends React.Component {
           }
           setFieldsValue(field_vals);
         })
-        .catch(err => console.error(err));
+        .catch(err => {
+            message.error(Object.values(err.response.data)[0][0]);
+            console.error(err);
+        });
     }
   }
 

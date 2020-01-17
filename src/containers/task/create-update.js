@@ -122,7 +122,9 @@ class TaskCreateUpdateForm extends Component {
                         let task_id = this.props.match.params.taskID;
                         let url = `${constants.HOST}/api/project/${proj_id}/task/${task_id}/`;
                         form_data.append('name', vals.task_name);
-                        form_data.append('description', vals.task_description);
+                        if(isFieldTouched('task_description')) {
+                            form_data.append('description', getFieldValue('task_description'));
+                        }
                         form_data.append('start_date', vals.date_range[0].format('YYYY/MM/DD'));
                         form_data.append('end_date', vals.date_range[1].format('YYYY/MM/DD'));
                         form_data.append('project_id', proj_id);
@@ -155,7 +157,7 @@ class TaskCreateUpdateForm extends Component {
         if (this.state.isEdit || this.state.isDisabled) {
             let prj_id = this.props.match.params.projectID;
             let task_id = this.props.match.params.taskID;
-            await axios.get(`${constants.HOST}/api/project/${prj_id}/task/${task_id}`)
+            await axios.get(`${constants.HOST}/api/project/${prj_id}/task/${task_id}/`)
                 .then(res => {
                     const task = res.data;
                     task_name = task.name;

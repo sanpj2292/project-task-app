@@ -1,4 +1,4 @@
-from .views import ProjectViewset, TasksViewset, UserViewset
+from .views import ProjectViewset, TasksViewset, UserViewset, get_image_data
 from rest_framework_nested.routers import NestedSimpleRouter, SimpleRouter
 from django.urls import path, include
 
@@ -15,4 +15,5 @@ urlpatterns = [
     path('', include(parent_router.urls)),
     path('', include(prj_router.urls)),
     path('', include(user_router.urls)),
+    path('image/', get_image_data),
 ]
