@@ -20,14 +20,12 @@ class LoginForm extends React.Component {
 
 
   render() {
-    let errorMsg = null;
-    if (this.props.error) {
-      errorMsg = (<p>{this.props.error.message}</p>);
-    }
+    const {error} = this.props;
     const { getFieldDecorator } = this.props.form;
     return (
       <div>
-        {errorMsg ? <Alert message={errorMsg} type="error" /> : null}
+        {error ? <Alert message={Object.values(error.response.data)[0][0]}
+                        closable type="error" /> : null}
         {this.props.loading ?
           <Spin indicator={antIcon} />
           :
