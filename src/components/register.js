@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import {Form, Row, Col, Input, Button, Alert, message} from 'antd';
+import {Form, Row, Col, Input, Button, Alert} from 'antd';
 import * as actions from "../store/actions/auth";
 import { connect } from 'react-redux';
 

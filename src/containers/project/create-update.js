@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Button,
-  DatePicker,
   Form,
   Icon,
   Input,
@@ -52,7 +51,7 @@ class CreateProjectForm extends React.Component {
           Authorization: `Token ${this.props.token}`,
         };
         let form_data = new FormData();
-        const {isFieldTouched, isFieldsTouched, getFieldValue} = this.props.form;
+        const {isFieldTouched, getFieldValue} = this.props.form;
         // add one or more of your files in FormData
         // again, the original file is located at the `originFileObj` key
         if (this.state.method === 'post') {

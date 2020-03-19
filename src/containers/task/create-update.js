@@ -95,10 +95,9 @@ class TaskCreateUpdateForm extends Component {
                         let { proj_id } = this.state;
                         let url = `${constants.HOST}/api/project/${proj_id}/task/`;
                         form_data.append('name', vals.task_name);
-                        if(vals.task_description && vals.task_description !== '') {
-                            form_data.append('description', vals.task_description);
-                        } else {
-                            form_data.append('description', '');
+
+                        if(isFieldTouched('task_description')) {
+                            form_data.append('description', getFieldValue('task_description'));
                         }
                         form_data.append('start_date', vals.date_range[0].format('YYYY/MM/DD'));
                         form_data.append('end_date', vals.date_range[1].format('YYYY/MM/DD'));
